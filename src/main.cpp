@@ -18,6 +18,12 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Texture.h"
+#include "Light.h"
+
+//Dear ImGui
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -33,6 +39,34 @@ static const char* vShader = "Shaders/shader.vert";
 // Fragment Shader
 static const char* fShader = "Shaders/shader.frag";
 
+void calcAverageNormals(unsigned int * indices, unsigned int indiceCount, GLfloat * vertices, unsigned int verticeCount, 
+						unsigned int vLength, unsigned int normalOffset)
+{
+	for (size_t i = 0; i < indiceCount; i += 3)
+	{
+		unsigned int in0 = indices[i] * vLength;
+		unsigned int in1 = indices[i + 1] * vLength;
+		unsigned int in2 = indices[i + 2] * vLength;
+		glm::vec3 v1(vertices[in1] - vertices[in0], vertices[in1 + 1] - vertices[in0 + 1], vertices[in1 + 2] - vertices[in0 + 2]);
+		glm::vec3 v2(vertices[in2] - vertices[in0], vertices[in2 + 1] - vertices[in0 + 1], vertices[in2 + 2] - vertices[in0 + 2]);
+		glm::vec3 normal = glm::cross(v1, v2);
+		normal = glm::normalize(normal);
+		
+		in0 += normalOffset; in1 += normalOffset; in2 += normalOffset;
+		vertices[in0] += normal.x; vertices[in0 + 1] += normal.y; vertices[in0 + 2] += normal.z;
+		vertices[in1] += normal.x; vertices[in1 + 1] += normal.y; vertices[in1 + 2] += normal.z;
+		vertices[in2] += normal.x; vertices[in2 + 1] += normal.y; vertices[in2 + 2] += normal.z;
+	}
+
+	for (size_t i = 0; i < verticeCount / vLength; i++)
+	{
+		unsigned int nOffset = i * vLength + normalOffset;
+		glm::vec3 vec(vertices[nOffset], vertices[nOffset + 1], vertices[nOffset + 2]);
+		vec = glm::normalize(vec);
+		vertices[nOffset] = vec.x; vertices[nOffset + 1] = vec.y; vertices[nOffset + 2] = vec.z;
+	}
+}
+
 void CreateObjects() 
 {
 	unsigned int indices[] = {
@@ -43,19 +77,21 @@ void CreateObjects()
 	};
 
 	GLfloat vertices[] = {
-		//	x      y      z			u	  v
-			-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,
-			0.0f, -1.0f, 1.0f,		0.5f, 0.0f,
-			1.0f, -1.0f, 0.0f,		1.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,		0.5f, 1.0f
+	//	x      y      z			u	  v			nx	  ny    nz
+		-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 1.0f,		0.5f, 0.0f,		0.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,		1.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,		0.5f, 1.0f,		0.0f, 0.0f, 0.0f
 	};
 
+	calcAverageNormals(indices, 12, vertices, 32, 8, 5);
+
 	Mesh *obj1 = new Mesh();
-	obj1->CreateMesh(vertices, indices, 20, 12);
+	obj1->CreateMesh(vertices, indices, 32, 12);
 	meshList.push_back(obj1);
 
 	Mesh *obj2 = new Mesh();
-	obj2->CreateMesh(vertices, indices, 20, 12);
+	obj2->CreateMesh(vertices, indices, 32, 12);
 	meshList.push_back(obj2);
 }
 
@@ -68,9 +104,29 @@ void CreateShaders()
 
 int main() 
 {
-
+	const char* glsl_version = "#version 130";
 	Window mainWindow = Window(WINDOW_WIDTH, WINDOW_HEIGHT);
 	mainWindow.Initialize();
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(mainWindow.m_mainWindow, true);
+	ImGui_ImplOpenGL3_Init(glsl_version);
+
+	// Our state
+	bool show_demo_window = true;
+	bool show_another_window = false;
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	CreateObjects();
 	CreateShaders();
@@ -82,7 +138,12 @@ int main()
 	Texture* dirtTexture = new Texture("Textures/dirt.png");
 	dirtTexture->LoadTexture();
 
-	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
+	Light* mainLight = new Light(1.0f, 1.0f, 1.0f, 0.2f,
+								2.0f, -1.0f, -2.0f, 1.0f);
+
+	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, 
+		uniformAmbientIntensity = 0, uniformAmbientColour = 0,
+		uniformDirection = 0, uniformDiffuseIntensity = 0;
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
 	// Loop until window closed
@@ -94,7 +155,36 @@ int main()
 		// Get + Handle User Input
 		glfwPollEvents();
 
-		cam.keyControl(mainWindow.getsKeys(), 0.001f);
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+
+		// Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+		{
+			static float f = 0.0f;
+			static int counter = 0;
+
+			ImGui::Begin("Modern OpenGL");                          // Create a window called "Modern OpenGL" and append into it.
+
+			//ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+			//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+			//ImGui::Checkbox("Another Window", &show_another_window);
+
+			//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+				counter++;
+			ImGui::SameLine();
+			ImGui::Text("counter = %d", counter);
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::End();
+		}
+
+		cam.keyControl(mainWindow.getsKeys(), deltaTime);
 		cam.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
 		// Clear the window
@@ -105,6 +195,13 @@ int main()
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
 		uniformView = shaderList[0].GetViewLocation();
+		uniformAmbientColour = shaderList[0].GetAmbientColourLocation();
+		uniformAmbientIntensity = shaderList[0].GetAmbientIntensityLocation();
+		uniformDirection = shaderList[0].GetDirectionLocation();
+		uniformDiffuseIntensity = shaderList[0].GetDiffuseIntensityLocation();
+
+		mainLight->UseLight(uniformAmbientIntensity, uniformAmbientColour,
+							uniformDiffuseIntensity, uniformDirection);
 
 		glm::mat4 model(1.0f);	
 
@@ -125,8 +222,18 @@ int main()
 		
 		glUseProgram(0);
 
+		// Rendering
+		ImGui::Render();
+
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		mainWindow.swapBuffers();
 	}
+
+	// Cleanup
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	return 0;
 }

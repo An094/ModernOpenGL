@@ -73,6 +73,10 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	m_uniformProjection = GetUniformLocation("projection");
 	m_uniformModel = GetUniformLocation("model");
 	m_uniformView = GetUniformLocation("view");
+	m_uniformAmbientIntensity = GetUniformLocation("directionLight.ambientIntensity");
+	m_uniformAmbientColour = GetUniformLocation("directionLight.colour");
+	m_uniformDiffuseIntensity = GetUniformLocation("directionLight.diffuseIntensity");
+	m_uniformDirection = GetUniformLocation("directionLight.direction");
 }
 
 GLuint Shader::GetProjectionLocation() const
@@ -88,6 +92,26 @@ GLuint Shader::GetModelLocation() const
 GLuint Shader::GetViewLocation() const
 {
 	return m_uniformView;
+}
+
+GLuint Shader::GetAmbientIntensityLocation() const
+{
+	return m_uniformAmbientIntensity;
+}
+
+GLuint Shader::GetAmbientColourLocation() const
+{
+	return m_uniformAmbientColour;
+}
+
+GLuint Shader::GetDiffuseIntensityLocation() const
+{
+	return m_uniformDiffuseIntensity;
+}
+
+GLuint Shader::GetDirectionLocation() const
+{
+	return m_uniformDirection;
 }
 
 GLuint Shader::GetUniformLocation(const char* uniform) const

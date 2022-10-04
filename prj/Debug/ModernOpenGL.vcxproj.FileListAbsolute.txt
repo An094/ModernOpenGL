@@ -1,2 +1,3 @@
 D:\Project\prj\Debug\ModernOpenGL.exe
 C:\Users\annt0\Desktop\Clone\ModernOpenGL\prj\Debug\ModernOpenGL.exe
+D:\Project\ModernOpenGL\prj\Debug\ModernOpenGL.exe
