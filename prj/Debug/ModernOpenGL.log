@@ -1,7 +1,34 @@
-﻿  main.cpp
-D:\Project\ModernOpenGL\src\main.cpp(152,15): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-D:\Project\ModernOpenGL\src\main.cpp(204,33): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
-D:\Project\ModernOpenGL\src\main.cpp(204,8): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
-D:\Project\ModernOpenGL\src\main.cpp(203,48): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
-D:\Project\ModernOpenGL\src\main.cpp(203,23): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
-  ModernOpenGL.vcxproj -> D:\Project\ModernOpenGL\prj\Debug\ModernOpenGL.exe
+﻿  imgui_impl_glfw.cpp
+  imgui_impl_opengl3.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  Camera.cpp
+  Light.cpp
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Light.cpp(10,14): warning C4244: 'argument': conversion from 'GLfloat' to 'GLint', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Light.cpp(11,14): warning C4244: 'argument': conversion from 'GLfloat' to 'GLint', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Light.cpp(12,14): warning C4244: 'argument': conversion from 'GLfloat' to 'GLint', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Light.cpp(13,14): warning C4244: 'argument': conversion from 'GLfloat' to 'GLint', possible loss of data
+  main.cpp
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\main.cpp(152,15): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\main.cpp(204,33): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\main.cpp(204,8): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\main.cpp(203,48): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\main.cpp(203,23): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+  Mesh.cpp
+  Shader.cpp
+  Texture.cpp
+  Window.cpp
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Window.cpp(123,22): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Window.cpp(124,22): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Window.cpp(128,28): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Window.cpp(129,40): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Window.cpp(131,21): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Window.cpp(132,21): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+  Generating Code...
+C:\Users\annt0\Desktop\Clone\ModernOpenGL\src\Window.cpp(73): warning C4715: 'Window::Initialize': not all control paths return a value
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  ModernOpenGL.vcxproj -> C:\Users\annt0\Desktop\Clone\ModernOpenGL\prj\Debug\ModernOpenGL.exe
+          1 file(s) copied.
