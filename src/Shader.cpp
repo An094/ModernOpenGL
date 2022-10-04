@@ -70,13 +70,16 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 		return;
 	}
 
-	m_uniformProjection = GetUniformLocation("projection");
-	m_uniformModel = GetUniformLocation("model");
-	m_uniformView = GetUniformLocation("view");
-	m_uniformAmbientIntensity = GetUniformLocation("directionLight.ambientIntensity");
-	m_uniformAmbientColour = GetUniformLocation("directionLight.colour");
-	m_uniformDiffuseIntensity = GetUniformLocation("directionLight.diffuseIntensity");
-	m_uniformDirection = GetUniformLocation("directionLight.direction");
+	m_uniformProjection			= GetUniformLocation("projection");
+	m_uniformModel				= GetUniformLocation("model");
+	m_uniformView				= GetUniformLocation("view");
+	m_uniformEyePosition		= GetUniformLocation("eyePosition");
+	m_uniformAmbientIntensity	= GetUniformLocation("directionalLight.ambientIntensity");
+	m_uniformAmbientColour		= GetUniformLocation("directionalLight.colour");
+	m_uniformDiffuseIntensity	= GetUniformLocation("directionalLight.diffuseIntensity");
+	m_uniformDirection			= GetUniformLocation("directionalLight.direction");
+	m_uniformSpecularIntensity	= GetUniformLocation("material.specularIntensity");
+	m_uniformShininess			= GetUniformLocation("material.shininess");
 }
 
 GLuint Shader::GetProjectionLocation() const
@@ -92,6 +95,11 @@ GLuint Shader::GetModelLocation() const
 GLuint Shader::GetViewLocation() const
 {
 	return m_uniformView;
+}
+
+GLuint Shader::GetEyePositionLocation() const
+{
+	return m_uniformEyePosition;
 }
 
 GLuint Shader::GetAmbientIntensityLocation() const
@@ -112,6 +120,16 @@ GLuint Shader::GetDiffuseIntensityLocation() const
 GLuint Shader::GetDirectionLocation() const
 {
 	return m_uniformDirection;
+}
+
+GLuint Shader::GetSpecularIntensityLocation() const
+{
+	return m_uniformSpecularIntensity;
+}
+
+GLuint Shader::GetShininessLocation() const
+{
+	return m_uniformShininess;
 }
 
 GLuint Shader::GetUniformLocation(const char* uniform) const
@@ -137,8 +155,17 @@ void Shader::ClearShader()
 		m_shaderID = 0;
 	}
 
-	m_uniformModel = 0;
 	m_uniformProjection = 0;
+	m_uniformModel = 0;
+	m_uniformView = 0;
+	m_uniformEyePosition = 0;
+	m_uniformAmbientIntensity = 0;
+	m_uniformAmbientColour = 0;
+	m_uniformDiffuseIntensity = 0;
+	m_uniformDirection = 0;
+	m_uniformSpecularIntensity = 0;
+	m_uniformShininess = 0;
+
 }
 
 

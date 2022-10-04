@@ -1,5 +1,5 @@
 #pragma once
 
-#define	WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define	WINDOW_WIDTH 1366
+#define WINDOW_HEIGHT 768
 #define	TOTAL_KEY 1024
