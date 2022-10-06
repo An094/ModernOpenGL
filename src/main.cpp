@@ -20,6 +20,7 @@
 #include "Texture.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "SpotLight.h"
 #include "Material.h"
 
 //Dear ImGui
@@ -174,21 +175,35 @@ int main()
 	PointLight pointLights[MAX_POINT_LIGHTS];
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
-								0.0f, 1.0f,
+								0.0f, 0.1f,
 								0.0f, 0.0f, 0.0f,
 								0.3f, 0.2f, 0.1f);
 	pointLightCount++;
 	pointLights[1] = PointLight(0.0f, 1.0f, 0.0f,
-								0.0f, 1.0f,
+								0.0f, 0.1f,
 								-4.0f, 2.0f, 0.0f,
 								0.3f, 0.1f, 0.1f);
 	pointLightCount++;
 
-	
+	//SpotLights
+	SpotLight spotLights[MAX_SPOT_LIGHTS];
+	unsigned int spotLightCount = 0;
+	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
+						0.0f, 2.0f,
+						0.0f, 0.0f, 0.0f,
+						0.0f, -1.0f, 0.0f,
+						1.0f, 0.0f, 0.0f,
+						20.0f);
+	spotLightCount++;
+	spotLights[1] = SpotLight(1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, -1.5f, 0.0f,
+		-100.0f, -1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		20.0f);
+	spotLightCount++;
 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
-		uniformAmbientIntensity = 0, uniformAmbientColour = 0,
-		uniformDirection = 0, uniformDiffuseIntensity = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
@@ -206,30 +221,6 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-
-		// Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-		{
-			static float f = 0.0f;
-			static int counter = 0;
-
-			ImGui::Begin("Modern OpenGL");                          // Create a window called "Modern OpenGL" and append into it.
-
-			//ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			//ImGui::Checkbox("Another Window", &show_another_window);
-
-			//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::End();
-		}
-
 		cam.keyControl(mainWindow.getsKeys(), deltaTime);
 		cam.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
@@ -245,10 +236,13 @@ int main()
 		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
 		uniformShininess = shaderList[0].GetShininessLocation();
 
+		glm::vec3 lowerLight = cam.GetPosition();
+		lowerLight.y -= 0.3f;
+		spotLights[0].SetFlash(lowerLight, cam.GetPosition());
+
 		shaderList[0].SetDirectionalLight(mainLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
-		//mainLight->UseLight(uniformAmbientIntensity, uniformAmbientColour,
-		//					uniformDiffuseIntensity, uniformDirection);
+		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(cam.calculateViewMatrix()));
@@ -274,11 +268,35 @@ int main()
 		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
 		//model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		plainTexture->UseTexture();
+		dirtTexture->UseTexture();
 		shinyMaterial->UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[2]->RenderMesh();
 
 		glUseProgram(0);
+
+		// Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+		{
+			static float f = 0.0f;
+			static int counter = 0;
+
+			ImGui::Begin("Modern OpenGL");                          // Create a window called "Modern OpenGL" and append into it.
+
+			//ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+			//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+			//ImGui::Checkbox("Another Window", &show_another_window);
+
+			//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+				counter++;
+			ImGui::SameLine();
+			ImGui::Text("counter = %d", counter);
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::End();
+		}
+
 
 		// Rendering
 		ImGui::Render();
